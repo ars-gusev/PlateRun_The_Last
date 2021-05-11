@@ -5,16 +5,16 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-public class MenuState extends State {
+public class GameOver extends State {
 
     private Texture background;
-    private Texture playBtn;
+    private Texture gameover;
 
-    public MenuState(GameStateManager gsm) {
+    public GameOver(GameStateManager gsm) {
         super(gsm);
         camera.setToOrtho(false, MyGame.width / 2, MyGame.height / 2);
         background = new Texture("fon.jpg");
-        playBtn = new Texture("f.png");
+        gameover = new Texture("ov.png");
     }
 
     @Override
@@ -34,15 +34,15 @@ public class MenuState extends State {
         sb.setProjectionMatrix(camera.combined);
         sb.begin();
         sb.draw(background, 0, 0);
-        sb.draw(playBtn, camera.position.x - playBtn.getWidth() / 2, camera.position.y);
+        sb.draw(gameover, camera.position.x - gameover.getWidth() / 2, camera.position.y - 40);
         sb.end();
     }
 
     @Override
     public void dispose() {
         background.dispose();
-        playBtn.dispose();
+        gameover.dispose();
 
-        System.out.println("MenuState Disposed");
+        System.out.println("GameOver Disposed");
     }
 }
