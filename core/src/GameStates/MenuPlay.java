@@ -31,21 +31,23 @@ public class MenuPlay extends State {
     private Texture back;
     private Texture playButton;
     public Texture record;
-    Stage stage;
-    TextButton button;
-    Skin skin;
+    private Texture monetka;
+//    Stage stage;
+//    TextButton button;
+//    Skin skin;
 
     public static Texture n0, n1, n2, n3, n4, n5, n6, n7, n8, n9;
     public static Array<Texture> numbers;
-    private ExtendViewport viewport;
-    private Table table;
-    private OrthographicCamera cam;
+//    private ExtendViewport viewport;
+//    private Table table;
+//    private OrthographicCamera cam;
 
     public MenuPlay(final GameManager gsm) {
         super(gsm);
         camera.setToOrtho(false, MyGame.width / 2, MyGame.height / 2);
         back = new Texture("fon.jpg");
         playButton = new Texture("play.png");
+        monetka = new Texture("menu_coin.png");
 //        playButton = new Actor();
         record = new Texture("record.png");
 
@@ -73,35 +75,17 @@ public class MenuPlay extends State {
         numbers.add(n8);
         numbers.add(n9);
 
-//        cam = new OrthographicCamera(1280, 720);
-
-        viewport = new ExtendViewport(camera.viewportWidth, camera.viewportHeight);
-        stage = new Stage(viewport);
-        Gdx.input.setInputProcessor(stage);
-        table = new Table();
-        table.setFillParent(true);
-        table.setDebug(false);
-        stage = new Stage();
-        skin = new Skin(Gdx.files.internal("Skins/pixthulhu-ui.json"));
-        button = new TextButton("Play", skin);
-        button.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                PlayState.cur_record = 0;
-                gsm.set(new PlayState(gsm));
-            }
-        });
-
-
-        table.add(button).fillX().width(250).height(100);
-        table.add(button);
-        stage.addActor(table);
-        stage.setViewport(viewport);
-
-    }
-
-    @Override
-    protected void handleInput() {
+////        cam = new OrthographicCamera(1280, 720);
+//
+//        viewport = new ExtendViewport(camera.viewportWidth, camera.viewportHeight);
+//        stage = new Stage(viewport);
+//        Gdx.input.setInputProcessor(stage);
+//        table = new Table();
+//        table.setFillParent(true);
+//        table.setDebug(false);
+//        stage = new Stage();
+//        skin = new Skin(Gdx.files.internal("Skins/pixthulhu-ui.json"));
+//        button = new TextButton("Play", skin);
 //        button.addListener(new ClickListener() {
 //            @Override
 //            public void clicked(InputEvent event, float x, float y) {
@@ -109,8 +93,20 @@ public class MenuPlay extends State {
 //                gsm.set(new PlayState(gsm));
 //            }
 //        });
+//
+//
+//        table.add(button).fillX().width(250).height(100);
+//        table.add(button);
+//        stage.addActor(table);
+//        stage.setViewport(viewport);
+
+    }
+
+    @Override
+    protected void handleInput() {
         if (Gdx.input.justTouched()) {
             PlayState.cur_record = 0;
+            PlayState.cur_coins = 0;
             gsm.set(new PlayState(gsm));
         }
     }
@@ -125,18 +121,27 @@ public class MenuPlay extends State {
         sb.setProjectionMatrix(camera.combined);
         sb.begin();
         sb.draw(back, 0, 0);
-
 //        stage.act();
 //        stage.draw();
         sb.draw(playButton, camera.position.x - playButton.getWidth() / 2, camera.position.y + 20);
-//        playButton.addListener(new ChangeListener() {
-//            @Override
-//            public void changed (ChangeEvent event, Actor actor) {
-//                System.out.println("Button Pressed");
-//            }
-//        });
-
         sb.draw(record, camera.position.x - record.getWidth() / 2, camera.position.y - 50);
+        sb.draw(monetka, 5, 360);
+        if (MyGame.preferences.getInteger("coins") < 10) {
+            sb.draw(numbers.get(MyGame.preferences.getInteger("coins")), 45, 360);
+        } else if (MyGame.preferences.getInteger("coins") < 100) {
+            int first = MyGame.preferences.getInteger("coins") / 10;
+            int second = MyGame.preferences.getInteger("coins") % 10;
+            sb.draw(numbers.get(first), 45, 360);
+            sb.draw(numbers.get(second), 67, 360);
+        } else {
+            int first = MyGame.preferences.getInteger("coins") / 100;
+            int second = MyGame.preferences.getInteger("coins") % 100 / 10;
+            int third = MyGame.preferences.getInteger("coins") % 10;
+            sb.draw(numbers.get(first), 45, 360);
+            sb.draw(numbers.get(second), 67, 360);
+            sb.draw(numbers.get(third), 89, 360);
+        }
+
         if (MyGame.pref.getInteger("bestRecord") < 10) {
             sb.draw(numbers.get(MyGame.pref.getInteger("bestRecord")), camera.position.x - numbers.get(MyGame.pref.getInteger("bestRecord")).getWidth() / 2, camera.position.y - 100);
         } else if (MyGame.pref.getInteger("bestRecord") < 100) {
@@ -158,8 +163,9 @@ public class MenuPlay extends State {
     @Override
     public void dispose() {
         back.dispose();
-//        playButton.dispose();
-
+        playButton.dispose();
+        record.dispose();
+        monetka.dispose();
         System.out.println("MenuState Disposed");
     }
 }

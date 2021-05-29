@@ -28,6 +28,7 @@ public class MyGame extends ApplicationAdapter {
 	private GameManager gsm;
 	public static SpriteBatch batch;
 	public static Preferences pref;
+	public static Preferences preferences;
 
 	public static Music music;
 
@@ -36,13 +37,14 @@ public class MyGame extends ApplicationAdapter {
 	public void create () {
 		batch = new SpriteBatch();
 		gsm = new GameManager();
+		Gdx.gl.glClearColor(1, 0, 0, 1);
+		gsm.push(new MenuPlay(gsm));
+		pref = Gdx.app.getPreferences("bestRecord");
+		preferences = Gdx.app.getPreferences("coins");
 		music = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
 		music.setLooping(true);
 		music.setVolume(0.2f);
 		music.play();
-		Gdx.gl.glClearColor(1, 0, 0, 1);
-		gsm.push(new MenuPlay(gsm));
-		pref = Gdx.app.getPreferences("bestRecord");
 	}
 
 	@Override

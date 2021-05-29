@@ -11,14 +11,14 @@ public class Plate {
     private Vector3 vel;
     private Rectangle bounds;
     private Animation plateAnimation;
-    private Texture texture;
+    private Texture plate;
 
     public Plate(int x, int y) {
         pos = new Vector3(x, y, 0);
         vel = new Vector3(0, 0, 0);
-        texture = new Texture("PlateAnimation.png");
-        plateAnimation = new Animation(new TextureRegion(texture), 4, 0.5f);
-        bounds = new Rectangle(x, y, texture.getWidth() / 4, texture.getHeight());
+        plate = new Texture("PlateAnimation.png");
+        plateAnimation = new Animation(new TextureRegion(plate), 4, 0.5f);
+        bounds = new Rectangle(x, y, plate.getWidth() / 4, plate.getHeight());
     }
 
     public TextureRegion getPlate() {
@@ -56,6 +56,6 @@ public class Plate {
     }
 
     public void dispose() {
-        texture.dispose();
+        plate.dispose();
     }
 }

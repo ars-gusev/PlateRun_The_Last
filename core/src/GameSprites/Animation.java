@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.Array;
 public class Animation {
     private Array<TextureRegion> frames;
     private float maxFrameTime;
-    private float currentFrameTime;
+    private float curFrameTime;
     private int frameCount;
     private int frame;
 
@@ -22,10 +22,10 @@ public class Animation {
     }
 
     public void update(float dt) {
-        currentFrameTime += dt;
-        if (currentFrameTime > maxFrameTime) {
+        curFrameTime += dt;
+        if (curFrameTime > maxFrameTime) {
             frame++;
-            currentFrameTime = 0;
+            curFrameTime = 0;
         }
         if (frame >= frameCount)
             frame = 0;

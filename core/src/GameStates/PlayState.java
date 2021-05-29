@@ -13,14 +13,15 @@ import GameSprites.Barrier;
 
 public class PlayState extends State {
 
-    public static final int TUBE_SPACING = 125;
-    public static final int TUBE_COUNT = 10;
+    public static final int BARRIER_SPACING = 125;
+    public static final int BARRIER_COUNT = 10;
     private static final int GROUND_Y_OFFSET = -90;
-    public static int cur_record = 0;
+    public static int cur_record = 0, cur_coins = 0;
     public static int cur = 1;
     double last_pos = -1;
     int count_go = 0;
     int check1 = 0, check2 = 0;
+    double lastCoinPos = -1;
 
     private Plate plate;
     private Texture bg;
@@ -28,6 +29,7 @@ public class PlayState extends State {
     private Vector2 groundPos1, groundPos2;
     private Sound fail;
     private Sound bonus;
+    private Sound bingo;
 
     private Array<Barrier> tubes;
 
@@ -41,13 +43,13 @@ public class PlayState extends State {
         groundPos2 = new Vector2((camera.position.x - camera.viewportWidth / 2) + ground.getWidth(), GROUND_Y_OFFSET);
         fail = Gdx.audio.newSound(Gdx.files.internal("fail.mp3"));
         bonus = Gdx.audio.newSound(Gdx.files.internal("bonus.mp3"));
-
+        bingo = Gdx.audio.newSound(Gdx.files.internal("coin.mp3"));
 
 
         tubes = new Array<Barrier>();
 
-        for (int i = 0; i < TUBE_COUNT; i++) {
-            tubes.add(new Barrier(i * (TUBE_SPACING + Barrier.TUBE_WIDTH)));
+        for (int i = 0; i < BARRIER_COUNT; i++) {
+            tubes.add(new Barrier(i * (BARRIER_SPACING + Barrier.BARRIER_WIDTH)));
         }
     }
 
@@ -71,8 +73,8 @@ public class PlayState extends State {
 
             Barrier barrier = tubes.get(i);
 
-            if (camera.position.x - (camera.viewportWidth / 2) > barrier.getPosTopTube().x + barrier.getTopTube().getWidth()) {
-                barrier.reposition(barrier.getPosTopTube().x + ((Barrier.TUBE_WIDTH + TUBE_SPACING) * TUBE_COUNT));
+            if (camera.position.x - (camera.viewportWidth / 2) > barrier.getPosTopBarrier().x + barrier.getTopBarrier().getWidth()) {
+                barrier.reposition(barrier.getPosTopBarrier().x + ((Barrier.BARRIER_WIDTH + BARRIER_SPACING) * BARRIER_COUNT));
                 if (check1 % 2 == 0) {
                     cur += 2;
                 }
@@ -100,8 +102,19 @@ public class PlayState extends State {
                     MyGame.pref.putInteger("bestRecord", cur_record);
                     MyGame.pref.flush();
                 }
+                int k = MyGame.preferences.getInteger("coins");
+                MyGame.preferences.putInteger("coins", cur_coins + k);
+                MyGame.preferences.flush();
                 gsm.set(new MenuOver(gsm));
                 cur = 1;
+            }
+
+            if (barrier.money(plate.getBounds())) {
+                if (Math.floor(plate.getBounds().x) - lastCoinPos > 100) {
+                    bingo.play();
+                    cur_coins++;
+                    lastCoinPos = Math.floor(plate.getBounds().x);
+                }
             }
 
 
@@ -116,28 +129,29 @@ public class PlayState extends State {
         sb.draw(bg, camera.position.x - (camera.viewportWidth / 2), 0);
         sb.draw(plate.getPlate(), plate.getPos().x, plate.getPos().y);
         for (Barrier barrier : tubes) {
-            sb.draw(barrier.getTopTube(), barrier.getPosBotTube().x, barrier.getPosTopTube().y);
-            sb.draw(barrier.getBottomTube(), barrier.getPosBotTube().x, barrier.getPosBotTube().y);
-            sb.draw(barrier.getBadBird(), barrier.getPosBadBird().x, barrier.getPosBadBird().y);
+            sb.draw(barrier.getTopBarrier(), barrier.getPosBotBarrier().x, barrier.getPosTopBarrier().y);
+            sb.draw(barrier.getBottomBarrier(), barrier.getPosBotBarrier().x, barrier.getPosBotBarrier().y);
+            sb.draw(barrier.getStone(), barrier.getPosStone().x, barrier.getPosStone().y);
+            sb.draw(barrier.getCoin(), barrier.getPosCoin().x, barrier.getPosCoin().y);
         }
         sb.draw(ground, groundPos1.x, groundPos1.y);
         sb.draw(ground, groundPos2.x, groundPos2.y);
         for (Barrier barrier : tubes) {
             if (check2 % 2 == 0) {
                 if (cur < 10) {
-                    sb.draw(MenuPlay.numbers.get(cur), barrier.getPosScore1().x, barrier.getPosScore1().y);
+                    sb.draw(MenuPlay.numbers.get(cur), barrier.getPosScore().x, barrier.getPosScore().y);
                 } else if (cur < 100) {
                     int first = cur / 10;
                     int second = cur % 10;
-                    sb.draw(MenuPlay.numbers.get(first), barrier.getPosScore1().x - 10, barrier.getPosScore1().y);
-                    sb.draw(MenuPlay.numbers.get(second), barrier.getPosScore1().x + 10, barrier.getPosScore1().y);
+                    sb.draw(MenuPlay.numbers.get(first), barrier.getPosScore().x - 10, barrier.getPosScore().y);
+                    sb.draw(MenuPlay.numbers.get(second), barrier.getPosScore().x + 10, barrier.getPosScore().y);
                 } else {
                     int first = PlayState.cur_record / 100;
                     int second = PlayState.cur_record % 100 / 10;
                     int third = PlayState.cur_record % 10;
-                    sb.draw(MenuPlay.numbers.get(first), barrier.getPosScore1().x - 20, barrier.getPosScore1().y);
-                    sb.draw(MenuPlay.numbers.get(second), barrier.getPosScore1().x, barrier.getPosScore1().y);
-                    sb.draw(MenuPlay.numbers.get(third), barrier.getPosScore1().x + 20, barrier.getPosScore1().y);
+                    sb.draw(MenuPlay.numbers.get(first), barrier.getPosScore().x - 20, barrier.getPosScore().y);
+                    sb.draw(MenuPlay.numbers.get(second), barrier.getPosScore().x, barrier.getPosScore().y);
+                    sb.draw(MenuPlay.numbers.get(third), barrier.getPosScore().x + 20, barrier.getPosScore().y);
                 }
                 check2 = 1;
             } else {
@@ -163,6 +177,7 @@ public class PlayState extends State {
         if (camera.position.x - (camera.viewportWidth / 2) > groundPos2.x + ground.getWidth())
             groundPos2.add(ground.getWidth() * 2, 0);
     }
+
 
 
 }
